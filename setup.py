@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 NAME = "Calpylus"
-VERSION = "0.0.4"
+VERSION = "0.0.5"
 AUTHOR = "Mohammad Mahfuz Rahman"
 AUTHOR_EMAIL = "mahfuzrahman0712@gmail.com"
 DESCRIPTION = "Calpylus is a strong python library for calculus"
