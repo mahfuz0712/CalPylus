@@ -20,6 +20,65 @@ class Calculus:
     def domain(function):
         function = s.sympify(function)
         return continuous_domain(function, Calculus.x, S.Reals)
+    @staticmethod
+    def range(function):
+        try:
+            f = s.sympify(function)
+            x = Calculus.x
+            domain = Calculus.domain(f)
+
+            # Collect candidate points: critical points + endpoints if finite
+            criticals = Calculus.critical_points(f)
+            points_to_check = []
+
+            # Add endpoints of domain if they are finite
+            if hasattr(domain, 'start') and hasattr(domain, 'end'):
+                if domain.start.is_real:
+                    points_to_check.append(domain.start)
+                if domain.end.is_real:
+                    points_to_check.append(domain.end)
+
+            # Add critical points within domain
+            for pt in criticals:
+                if isinstance(pt, (int, float, s.Basic)) and Calculus.is_finite(pt):
+                    if pt in domain:
+                        points_to_check.append(pt)
+
+            # Add some numerical points for estimation
+            if isinstance(domain, s.Interval):
+                if domain.start.is_finite and domain.end.is_finite:
+                    pts = np.linspace(float(domain.start), float(domain.end), 5)
+                    points_to_check += list(pts)
+                elif domain == s.Interval(-s.oo, s.oo):
+                    points_to_check += [-10, -1, 0, 1, 10]
+                else:
+                    # Fallback for other types of domains like Union, etc.
+                    points_to_check += [-10, -1, 0, 1, 10]
+
+
+
+
+            # Remove duplicates and evaluate
+            points_to_check = list(set(points_to_check))
+            values = []
+            for pt in points_to_check:
+                try:
+                    val = f.subs(x, pt).evalf()
+                    if Calculus.is_finite(val):
+                        values.append(val)
+                except:
+                    continue
+
+            if not values:
+                return "Range could not be determined"
+
+            min_val = min(values)
+            max_val = max(values)
+            return f"[{min_val}, {max_val}] (estimated)"
+
+        except Exception as e:
+            return f"Error determining range: {e}"
+
 
     @staticmethod
     def derivative(function, wrt='x'):
